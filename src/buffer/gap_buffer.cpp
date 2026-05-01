@@ -16,18 +16,22 @@ void GapBuffer::move_gap(size_t pos){
     if(pos>size()){throw std::out_of_range("position out of range");}
     if(pos<gap_start){
         size_t shift=gap_start-pos;
-        for(size_t i=0;i<shift;i++){
-        buffer[gap_end-1-i]=buffer[gap_start-1-i];
-    }
-    gap_start-=shift;
-    gap_end-=shift;
+        std::move(
+            buffer.begin()+pos,
+            buffer.begin()+gap_start,
+            buffer.begin()+gap_end-shift
+        );
+        gap_start-=shift;
+        gap_end-=shift;
     }else if(pos>gap_start){
         size_t shift=pos-gap_start;
-        for(size_t i=0;i<shift;i++){
-        buffer[gap_start+i]=buffer[gap_end+i];
-    }
-    gap_start+=shift;
-    gap_end+=shift;
+        std::move(
+            buffer.begin()+gap_end,
+            buffer.begin()+gap_end+shift,
+            buffer.begin()+gap_start
+        );
+        gap_start+=shift;
+        gap_end+=shift;
     }
 }
 
@@ -58,7 +62,11 @@ void GapBuffer::insert(size_t pos,const std::string&text){
 void GapBuffer::erase(size_t pos,size_t len){
     if(pos+len>size()){throw std::out_of_range("erase out of range");}
     move_gap(pos);
-    gap_end+=len;
+    if(gap_end+len>buffer.size()){
+        gap_end=buffer.size();
+    }else{
+        gap_end+=len;
+    }
 }
 
 std::string GapBuffer::substr(size_t pos,size_t len)const{
