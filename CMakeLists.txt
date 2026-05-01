@@ -8,4 +8,5 @@ include_directories(include)
 
 add_executable(texton
     src/main.cpp
+    src/buffer/gap_buffer.cpp
 )
