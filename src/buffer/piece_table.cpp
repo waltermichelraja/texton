@@ -57,6 +57,7 @@ void PieceTable::insert(size_t pos,const std::string&text){
     }
     pieces.erase(pieces.begin()+index);
     pieces.insert(pieces.begin()+index,new_pieces.begin(),new_pieces.end());
+    merge_adjacent();
 }
 
 std::string PieceTable::substr(size_t pos,size_t len)const{
@@ -106,4 +107,23 @@ void PieceTable::erase(size_t pos,size_t len){
         pieces.insert(pieces.begin()+index,new_pieces.begin(),new_pieces.end());
         remaining-=erase_len;
     }
+    merge_adjacent();
+}
+
+void PieceTable::merge_adjacent(){
+    if(pieces.empty())return;
+    std::vector<Piece>merged;
+    merged.reserve(pieces.size());
+    merged.push_back(pieces[0]);
+    for(size_t i=1;i<pieces.size();i++){
+        Piece&prev=merged.back();
+        const Piece&curr=pieces[i];
+        if(prev.buffer==curr.buffer &&
+           prev.start+prev.length==curr.start){
+            prev.length+=curr.length;
+        }else{
+            merged.push_back(curr);
+        }
+    }
+    pieces=std::move(merged);
 }

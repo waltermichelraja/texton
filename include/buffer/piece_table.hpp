@@ -29,4 +29,5 @@ public:
     void erase(size_t pos,size_t len)override;
     std::string substr(size_t pos,size_t len)const override;
     size_t size()const override;
+    void merge_adjacent();
 };
