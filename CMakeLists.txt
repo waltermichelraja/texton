@@ -8,6 +8,7 @@ add_executable(texton
     src/main.cpp
     src/buffer/gap_buffer.cpp
     src/buffer/piece_table.cpp
+    src/benchmark/runner.cpp
 )
 
 target_include_directories(texton PRIVATE ${CMAKE_SOURCE_DIR}/include)
