@@ -6,6 +6,7 @@
 
 int main(){
     size_t ops=100000;
+    size_t ops_random=20000;
 
     BenchmarkRunner::run_insert_test(
         "GapBuffer",
@@ -16,6 +17,18 @@ int main(){
         "PieceTable",
         [](){return std::make_unique<PieceTable>("");},
         ops
+    );
+
+    BenchmarkRunner::run_random_insert_test(
+        "GapBuffer",
+        [](){return std::make_unique<GapBuffer>();},
+        ops_random
+    );
+
+    BenchmarkRunner::run_random_insert_test(
+        "PieceTable",
+        [](){return std::make_unique<PieceTable>("");},
+        ops_random
     );
     return 0;
 }
