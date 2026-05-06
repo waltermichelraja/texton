@@ -24,11 +24,21 @@ int main(){
         [](){return std::make_unique<GapBuffer>();},
         ops_random
     );
-
     BenchmarkRunner::run_random_insert_test(
         "PieceTable",
         [](){return std::make_unique<PieceTable>("");},
         ops_random
+    );
+
+    BenchmarkRunner::run_mixed_workload(
+        "GapBuffer",
+        [](){return std::make_unique<GapBuffer>();},
+        50000
+    );
+    BenchmarkRunner::run_mixed_workload(
+        "PieceTable",
+        [](){return std::make_unique<PieceTable>("");},
+        50000
     );
     return 0;
 }
