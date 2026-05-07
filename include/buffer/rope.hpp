@@ -17,6 +17,8 @@ private:
     std::shared_ptr<RopeNode>root;
     size_t node_size(const std::shared_ptr<RopeNode>&node)const;
     std::string build_string(const std::shared_ptr<RopeNode>&node)const;
+    std::shared_ptr<RopeNode>concatenate(const std::shared_ptr<RopeNode>&left,const std::shared_ptr<RopeNode>&right);
+    void split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr<RopeNode>&left,std::shared_ptr<RopeNode>&right);
 
 public:
     Rope();

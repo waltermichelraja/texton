@@ -25,21 +25,26 @@ std::string Rope::build_string(const std::shared_ptr<RopeNode>&node)const{
 }
 
 void Rope::insert(size_t pos,const std::string&text){
-    std::string current=build_string(root);
-    if(pos>current.size()){
+    if(pos>size()){
         throw std::out_of_range("insert out of range");
     }
-    current.insert(pos,text);
-    root=std::make_shared<RopeNode>(current);
+    auto new_node=std::make_shared<RopeNode>(text);
+    std::shared_ptr<RopeNode>left;
+    std::shared_ptr<RopeNode>right;
+    split(root,pos,left,right);
+    root=concatenate(concatenate(left,new_node),right);
 }
 
 void Rope::erase(size_t pos,size_t len){
-    std::string current=build_string(root);
-    if(pos+len>current.size()){
+    if(pos+len>size()){
         throw std::out_of_range("erase out of range");
     }
-    current.erase(pos,len);
-    root=std::make_shared<RopeNode>(current);
+    std::shared_ptr<RopeNode>left;
+    std::shared_ptr<RopeNode>middle;
+    std::shared_ptr<RopeNode>right;
+    split(root,pos,left,middle);
+    split(middle,len,middle,right);
+    root=concatenate(left,right);
 }
 
 std::string Rope::substr(size_t pos,size_t len)const{
@@ -48,4 +53,42 @@ std::string Rope::substr(size_t pos,size_t len)const{
         throw std::out_of_range("substr out of range");
     }
     return current.substr(pos,len);
+}
+
+std::shared_ptr<RopeNode>Rope::concatenate(const std::shared_ptr<RopeNode>&left,const std::shared_ptr<RopeNode>&right){
+    if(!left){return right;}
+    if(!right){return left;}
+    auto parent=std::make_shared<RopeNode>("");
+    parent->left=left;
+    parent->right=right;
+    parent->weight=node_size(left);
+    return parent;
+}
+
+void Rope::split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr<RopeNode>&left,std::shared_ptr<RopeNode>&right){
+    if(!node){
+        left=nullptr;
+        right=nullptr;
+        return;
+    }
+    if(!node->left && !node->right){
+        std::string left_text=node->data.substr(0,pos);
+        std::string right_text=node->data.substr(pos);
+        left=left_text.empty()?nullptr:std::make_shared<RopeNode>(left_text);
+        right=right_text.empty()?nullptr:std::make_shared<RopeNode>(right_text);
+        return;
+    }
+    if(pos<node->weight){
+        std::shared_ptr<RopeNode>split_left;
+        std::shared_ptr<RopeNode>split_right;
+        split(node->left,pos,split_left,split_right);
+        left=split_left;
+        right=concatenate(split_right,node->right);
+    }else{
+        std::shared_ptr<RopeNode>split_left;
+        std::shared_ptr<RopeNode>split_right;
+        split(node->right,pos-node->weight,split_left,split_right);
+        left=concatenate(node->left,split_left);
+        right=split_right;
+    }
 }
