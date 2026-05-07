@@ -8,6 +8,7 @@ add_executable(texton
     src/main.cpp
     src/buffer/gap_buffer.cpp
     src/buffer/piece_table.cpp
+    src/buffer/rope.cpp
     src/benchmark/runner.cpp
 )
 

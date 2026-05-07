@@ -3,10 +3,24 @@
 #include "benchmark/runner.hpp"
 #include "buffer/gap_buffer.hpp"
 #include "buffer/piece_table.hpp"
+#include "buffer/rope.hpp"
+
+void test_rope(){
+    Rope rope;
+    rope.insert(0,"Hello");
+    rope.insert(5," World");
+
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.erase(5,1);
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+}
+
 
 int main(){
     size_t ops=100000;
     size_t ops_random=20000;
+
+    test_rope();
 
     BenchmarkRunner::run_insert_test(
         "GapBuffer",
