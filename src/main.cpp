@@ -6,13 +6,20 @@
 #include "buffer/rope.hpp"
 
 void test_rope(){
+    // Rope rope;
+    // rope.insert(0,"Hello");
+    // rope.insert(5," World");
+
+    // std::cout<<rope.substr(0,rope.size())<<std::endl;
+    // rope.erase(5,1);
+    // std::cout<<rope.substr(0,rope.size())<<std::endl;
     Rope rope;
+
     rope.insert(0,"Hello");
     rope.insert(5," World");
 
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.erase(5,1);
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    std::cout<<rope.substr(0,11)<<std::endl;
+    std::cout<<rope.substr(3,5)<<std::endl;
 }
 
 

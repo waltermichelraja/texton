@@ -1,4 +1,5 @@
 #include "buffer/rope.hpp"
+#include <algorithm>
 #include <stdexcept>
 
 RopeNode::RopeNode(const std::string&text){
@@ -48,11 +49,13 @@ void Rope::erase(size_t pos,size_t len){
 }
 
 std::string Rope::substr(size_t pos,size_t len)const{
-    std::string current=build_string(root);
-    if(pos+len>current.size()){
+    if(pos+len>size()){
         throw std::out_of_range("substr out of range");
     }
-    return current.substr(pos,len);
+    std::string result;
+    result.reserve(len);
+    collect_substr(root,pos,len,result);
+    return result;
 }
 
 std::shared_ptr<RopeNode>Rope::concatenate(const std::shared_ptr<RopeNode>&left,const std::shared_ptr<RopeNode>&right){
@@ -90,5 +93,23 @@ void Rope::split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr
         split(node->right,pos-node->weight,split_left,split_right);
         left=concatenate(node->left,split_left);
         right=split_right;
+    }
+}
+
+void Rope::collect_substr(const std::shared_ptr<RopeNode>&node,size_t pos,size_t len,std::string&result)const{
+    if(!node || len==0){return;}
+    if(!node->left && !node->right){
+        if(pos>=node->data.size()){return;}
+        size_t take=std::min(len,node->data.size()-pos);
+        result.append(node->data.substr(pos,take));
+        return;
+    }
+    if(pos<node->weight){
+        size_t left_take=std::min(len,node->weight-pos);
+        collect_substr(node->left,pos,left_take,result);
+        collect_substr(node->right,0,len-left_take,result);
+
+    }else{
+        collect_substr(node->right,pos-node->weight,len,result);
     }
 }
