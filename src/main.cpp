@@ -24,8 +24,8 @@ void test_rope(){
 
 
 int main(){
-    size_t ops=100000;
-    size_t ops_random=20000;
+    size_t ops=10000;
+    size_t ops_random=5000;
 
     test_rope();
 
@@ -39,6 +39,11 @@ int main(){
         [](){return std::make_unique<PieceTable>("");},
         ops
     );
+    BenchmarkRunner::run_insert_test(
+        "Rope",
+        [](){return std::make_unique<Rope>();},
+        ops
+    );
 
     BenchmarkRunner::run_random_insert_test(
         "GapBuffer",
@@ -48,6 +53,11 @@ int main(){
     BenchmarkRunner::run_random_insert_test(
         "PieceTable",
         [](){return std::make_unique<PieceTable>("");},
+        ops_random
+    );
+    BenchmarkRunner::run_random_insert_test(
+        "Rope",
+        [](){return std::make_unique<Rope>();},
         ops_random
     );
 
@@ -60,6 +70,11 @@ int main(){
         "PieceTable",
         [](){return std::make_unique<PieceTable>("");},
         50000
+    );
+    BenchmarkRunner::run_mixed_workload(
+        "Rope",
+        [](){return std::make_unique<Rope>();},
+        30000
     );
     return 0;
 }
