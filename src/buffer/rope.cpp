@@ -9,6 +9,7 @@ RopeNode::RopeNode(const std::string&text){
 
 Rope::Rope(){
     root=nullptr;
+    total_size=0;
 }
 
 size_t Rope::node_size(const std::shared_ptr<RopeNode>&node)const{
@@ -17,7 +18,7 @@ size_t Rope::node_size(const std::shared_ptr<RopeNode>&node)const{
 }
 
 size_t Rope::size()const{
-    return node_size(root);
+    return total_size;
 }
 
 std::string Rope::build_string(const std::shared_ptr<RopeNode>&node)const{
@@ -34,6 +35,8 @@ void Rope::insert(size_t pos,const std::string&text){
     std::shared_ptr<RopeNode>right;
     split(root,pos,left,right);
     root=concatenate(concatenate(left,new_node),right);
+    total_size+=text.size();
+    if(total_size%1000==0){rebalance();}
 }
 
 void Rope::erase(size_t pos,size_t len){
@@ -46,6 +49,7 @@ void Rope::erase(size_t pos,size_t len){
     split(root,pos,left,middle);
     split(middle,len,middle,right);
     root=concatenate(left,right);
+    total_size-=len;
 }
 
 std::string Rope::substr(size_t pos,size_t len)const{
@@ -75,8 +79,9 @@ void Rope::split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr
         return;
     }
     if(!node->left && !node->right){
-        std::string left_text=node->data.substr(0,pos);
-        std::string right_text=node->data.substr(pos);
+        size_t split_pos=std::min(pos,node->data.size());
+        std::string left_text=node->data.substr(0,split_pos);
+        std::string right_text=node->data.substr(split_pos);
         left=left_text.empty()?nullptr:std::make_shared<RopeNode>(left_text);
         right=right_text.empty()?nullptr:std::make_shared<RopeNode>(right_text);
         return;
@@ -112,4 +117,33 @@ void Rope::collect_substr(const std::shared_ptr<RopeNode>&node,size_t pos,size_t
     }else{
         collect_substr(node->right,pos-node->weight,len,result);
     }
+}
+
+void Rope::collect_leaves(const std::shared_ptr<RopeNode>&node,std::vector<std::string>&leaves)const{
+    if(!node){return;}
+    if(!node->left && !node->right){
+        if(!node->data.empty()){
+            leaves.push_back(node->data);
+        }
+        return;
+    }
+    collect_leaves(node->left,leaves);
+    collect_leaves(node->right,leaves);
+}
+
+std::shared_ptr<RopeNode>Rope::build_balanced(const std::vector<std::string>&leaves,size_t left,size_t right){
+    if(left>=right){return nullptr;}
+    if(right-left==1){
+        return std::make_shared<RopeNode>(leaves[left]);
+    }
+    size_t mid=(left+right)/2;
+    auto left_node=build_balanced(leaves,left,mid);
+    auto right_node=build_balanced(leaves,mid,right);
+    return concatenate(left_node,right_node);
+}
+
+void Rope::rebalance(){
+    std::vector<std::string>leaves;
+    collect_leaves(root,leaves);
+    root=build_balanced(leaves,0,leaves.size());
 }
