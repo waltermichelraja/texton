@@ -1,5 +1,6 @@
-#include <iostream>
 #include <memory>
+#include <cstdio>
+#include <iostream>
 #include "benchmark/runner.hpp"
 #include "buffer/gap_buffer.hpp"
 #include "buffer/piece_table.hpp"
@@ -24,10 +25,11 @@ void test_rope(){
 
 
 int main(){
+    std::remove("benchmark_results.csv");
     size_t ops=10000;
     size_t ops_random=5000;
 
-    test_rope();
+    // test_rope();
 
     BenchmarkRunner::run_insert_test(
         "GapBuffer",
