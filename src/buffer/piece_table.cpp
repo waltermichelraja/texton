@@ -34,10 +34,14 @@ size_t PieceTable::find_piece(size_t pos,size_t&offset)const{
 
 void PieceTable::insert(size_t pos,const std::string&text){
     if(pos>size()){throw std::out_of_range("insert out of range");}
+    if(!suppress_history){
+        history.record({OperationType::INSERT,pos,text});
+    }
     size_t add_start=add_buffer.size();
     add_buffer+=text;
     if(pieces.empty()){
         pieces.push_back({BufferType::ADD,add_start,text.size()});
+        merge_adjacent();
         return;
     }
     size_t offset=0;
@@ -82,6 +86,10 @@ std::string PieceTable::substr(size_t pos,size_t len)const{
 
 void PieceTable::erase(size_t pos,size_t len){
     if(pos+len>size()){throw std::out_of_range("erase out of range");}
+    std::string removed=substr(pos,len);
+    if(!suppress_history){
+        history.record({OperationType::ERASE,pos,removed});
+    }
     size_t remaining=len;
     while(remaining>0){
         size_t offset=0;
@@ -129,7 +137,27 @@ void PieceTable::merge_adjacent(){
 }
 
 void PieceTable::undo(){
+    if(!history.can_undo()){return;}
+    EditOperation op=history.pop_undo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        erase(op.position,op.text.size());
+    }else{
+        insert(op.position,op.text);
+    }
+    suppress_history=false;
+    history.push_redo(op);
 }
 
 void PieceTable::redo(){
+    if(!history.can_redo()){return;}
+    EditOperation op=history.pop_redo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        insert(op.position,op.text);
+    }else{
+        erase(op.position,op.text.size());
+    }
+    suppress_history=false;
+    history.push_undo(op);
 }

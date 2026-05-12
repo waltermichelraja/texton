@@ -8,16 +8,14 @@
 #include "buffer/rope.hpp"
 
 int main(){
-
-    GapBuffer gb;
-
-    gb.insert(0,"Hello");
-    gb.insert(5," World");
-    std::cout<<gb.substr(0,gb.size())<<std::endl;
-    gb.undo();
-    std::cout<<gb.substr(0,gb.size())<<std::endl;
-    gb.redo();
-    std::cout<<gb.substr(0,gb.size())<<std::endl;
+    PieceTable pt;
+    pt.insert(0,"Hello");
+    pt.insert(5," World");
+    std::cout<<pt.substr(0,pt.size())<<std::endl;
+    pt.undo();
+    std::cout<<pt.substr(0,pt.size())<<std::endl;
+    pt.redo();
+    std::cout<<pt.substr(0,pt.size())<<std::endl;
 
     return 0;
     

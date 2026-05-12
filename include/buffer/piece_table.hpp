@@ -1,5 +1,6 @@
 #pragma once
 #include "text_buffer.hpp"
+#include "core/history_manager.hpp"
 #include <vector>
 #include <string>
 
@@ -19,7 +20,8 @@ private:
     std::string original_buffer;
     std::string add_buffer;
     std::vector<Piece>pieces;
-
+    HistoryManager history;
+    bool suppress_history=false;
     size_t find_piece(size_t pos,size_t&offset)const;
 
 public:
