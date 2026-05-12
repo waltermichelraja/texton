@@ -1,5 +1,6 @@
 #pragma once
 #include "text_buffer.hpp"
+#include "core/history_manager.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,6 +18,8 @@ class Rope:public TextBuffer{
 private:
     std::shared_ptr<RopeNode>root;
     size_t total_size;
+    HistoryManager history;
+    bool suppress_history=false;
     size_t node_size(const std::shared_ptr<RopeNode>&node)const;
     std::string build_string(const std::shared_ptr<RopeNode>&node)const;
     std::shared_ptr<RopeNode>concatenate(const std::shared_ptr<RopeNode>&left,const std::shared_ptr<RopeNode>&right);
@@ -24,6 +27,7 @@ private:
     void collect_substr(const std::shared_ptr<RopeNode>&node,size_t pos,size_t len,std::string&result)const;
     void collect_leaves(const std::shared_ptr<RopeNode>&node,std::vector<std::string>&leaves)const;
     std::shared_ptr<RopeNode>build_balanced(const std::vector<std::string>&leaves,size_t left,size_t right);
+    bool is_leaf(const std::shared_ptr<RopeNode>&node)const;
     void rebalance();
 
 public:

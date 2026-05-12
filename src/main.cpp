@@ -8,14 +8,21 @@
 #include "buffer/rope.hpp"
 
 int main(){
-    PieceTable pt;
-    pt.insert(0,"Hello");
-    pt.insert(5," World");
-    std::cout<<pt.substr(0,pt.size())<<std::endl;
-    pt.undo();
-    std::cout<<pt.substr(0,pt.size())<<std::endl;
-    pt.redo();
-    std::cout<<pt.substr(0,pt.size())<<std::endl;
+    Rope rope;
+    rope.insert(0,"abc");
+    rope.insert(3,"def");
+    rope.insert(6,"ghi");
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.undo();
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.undo();
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.redo();
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.erase(1,1);
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
+    rope.undo();
+    std::cout<<rope.substr(0,rope.size())<<std::endl;
 
     return 0;
     

@@ -17,6 +17,10 @@ size_t Rope::node_size(const std::shared_ptr<RopeNode>&node)const{
     return node_size(node->left)+node->data.size()+node_size(node->right);
 }
 
+bool Rope::is_leaf(const std::shared_ptr<RopeNode>&node)const{
+    return node && !node->left && !node->right;
+}
+
 size_t Rope::size()const{
     return total_size;
 }
@@ -29,6 +33,9 @@ std::string Rope::build_string(const std::shared_ptr<RopeNode>&node)const{
 void Rope::insert(size_t pos,const std::string&text){
     if(pos>size()){
         throw std::out_of_range("insert out of range");
+    }
+    if(!suppress_history){
+        history.record({OperationType::INSERT,pos,text});
     }
     auto new_node=std::make_shared<RopeNode>(text);
     std::shared_ptr<RopeNode>left;
@@ -43,13 +50,21 @@ void Rope::erase(size_t pos,size_t len){
     if(pos+len>size()){
         throw std::out_of_range("erase out of range");
     }
+    std::string removed=substr(pos,len);
+    if(!suppress_history){
+        history.record({OperationType::ERASE,pos,removed});
+    }
     std::shared_ptr<RopeNode>left;
-    std::shared_ptr<RopeNode>middle;
+    std::shared_ptr<RopeNode>temp;
+    std::shared_ptr<RopeNode>discard;
     std::shared_ptr<RopeNode>right;
-    split(root,pos,left,middle);
-    split(middle,len,middle,right);
+    split(root,pos,left,temp);
+    split(temp,len,discard,right);
     root=concatenate(left,right);
     total_size-=len;
+    if(total_size>0 && total_size%1000==0){
+        rebalance();
+    }
 }
 
 std::string Rope::substr(size_t pos,size_t len)const{
@@ -78,7 +93,7 @@ void Rope::split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr
         right=nullptr;
         return;
     }
-    if(!node->left && !node->right){
+    if(is_leaf(node)){
         size_t split_pos=std::min(pos,node->data.size());
         std::string left_text=node->data.substr(0,split_pos);
         std::string right_text=node->data.substr(split_pos);
@@ -87,17 +102,17 @@ void Rope::split(const std::shared_ptr<RopeNode>&node,size_t pos,std::shared_ptr
         return;
     }
     if(pos<node->weight){
-        std::shared_ptr<RopeNode>split_left;
-        std::shared_ptr<RopeNode>split_right;
-        split(node->left,pos,split_left,split_right);
-        left=split_left;
-        right=concatenate(split_right,node->right);
+        std::shared_ptr<RopeNode>l1;
+        std::shared_ptr<RopeNode>l2;
+        split(node->left,pos,l1,l2);
+        left=l1;
+        right=concatenate(l2,node->right);
     }else{
-        std::shared_ptr<RopeNode>split_left;
-        std::shared_ptr<RopeNode>split_right;
-        split(node->right,pos-node->weight,split_left,split_right);
-        left=concatenate(node->left,split_left);
-        right=split_right;
+        std::shared_ptr<RopeNode>r1;
+        std::shared_ptr<RopeNode>r2;
+        split(node->right,pos-node->weight,r1,r2);
+        left=concatenate(node->left,r1);
+        right=r2;
     }
 }
 
@@ -149,7 +164,27 @@ void Rope::rebalance(){
 }
 
 void Rope::undo(){
+    if(!history.can_undo()){return;}
+    EditOperation op=history.pop_undo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        erase(op.position,op.text.size());
+    }else{
+        insert(op.position,op.text);
+    }
+    suppress_history=false;
+    history.push_redo(op);
 }
 
 void Rope::redo(){
+    if(!history.can_redo()){return;}
+    EditOperation op=history.pop_redo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        insert(op.position,op.text);
+    }else{
+        erase(op.position,op.text.size());
+    }
+    suppress_history=false;
+    history.push_undo(op);
 }
