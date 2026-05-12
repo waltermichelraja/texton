@@ -10,6 +10,7 @@ add_executable(texton
     src/buffer/piece_table.cpp
     src/buffer/rope.cpp
     src/benchmark/runner.cpp
+    src/core/history_manager.cpp
 )
 
 target_include_directories(texton PRIVATE ${CMAKE_SOURCE_DIR}/include)
