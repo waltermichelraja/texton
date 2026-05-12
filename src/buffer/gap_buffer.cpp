@@ -53,6 +53,9 @@ void GapBuffer::expand_gap(size_t min_size){
 
 void GapBuffer::insert(size_t pos,const std::string&text){
     move_gap(pos);
+    if(!suppress_history){
+        history.record({OperationType::INSERT,pos,text});
+    }
     expand_gap(text.size());
     for(char c:text){
         buffer[gap_start++]=c;
@@ -61,6 +64,10 @@ void GapBuffer::insert(size_t pos,const std::string&text){
 
 void GapBuffer::erase(size_t pos,size_t len){
     if(pos+len>size()){throw std::out_of_range("erase out of range");}
+    std::string removed=substr(pos,len);
+    if(!suppress_history){
+        history.record({OperationType::ERASE,pos,removed});
+    }
     move_gap(pos);
     if(gap_end+len>buffer.size()){
         gap_end=buffer.size();
@@ -79,4 +86,30 @@ std::string GapBuffer::substr(size_t pos,size_t len)const{
         else result.push_back(buffer[idx+(gap_end-gap_start)]);
     }
     return result;
+}
+
+void GapBuffer::undo(){
+    if(!history.can_undo()){return;}
+    EditOperation op=history.pop_undo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        erase(op.position,op.text.size());
+    }else{
+        insert(op.position,op.text);
+    }
+    suppress_history=false;
+    history.push_redo(op);
+}
+
+void GapBuffer::redo(){
+    if(!history.can_redo()){return;}
+    EditOperation op=history.pop_redo();
+    suppress_history=true;
+    if(op.type==OperationType::INSERT){
+        insert(op.position,op.text);
+    }else{
+        erase(op.position,op.text.size());
+    }
+    suppress_history=false;
+    history.push_undo(op);
 }

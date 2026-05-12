@@ -147,3 +147,9 @@ void Rope::rebalance(){
     collect_leaves(root,leaves);
     root=build_balanced(leaves,0,leaves.size());
 }
+
+void Rope::undo(){
+}
+
+void Rope::redo(){
+}

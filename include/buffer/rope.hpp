@@ -30,6 +30,8 @@ public:
     Rope();
     void insert(size_t pos,const std::string&text)override;
     void erase(size_t pos,size_t len)override;
+    void undo()override;
+    void redo()override;
     std::string substr(size_t pos,size_t len)const override;
     size_t size()const override;
 };

@@ -127,3 +127,9 @@ void PieceTable::merge_adjacent(){
     }
     pieces=std::move(merged);
 }
+
+void PieceTable::undo(){
+}
+
+void PieceTable::redo(){
+}

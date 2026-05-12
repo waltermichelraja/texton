@@ -8,6 +8,19 @@
 #include "buffer/rope.hpp"
 
 int main(){
+
+    GapBuffer gb;
+
+    gb.insert(0,"Hello");
+    gb.insert(5," World");
+    std::cout<<gb.substr(0,gb.size())<<std::endl;
+    gb.undo();
+    std::cout<<gb.substr(0,gb.size())<<std::endl;
+    gb.redo();
+    std::cout<<gb.substr(0,gb.size())<<std::endl;
+
+    return 0;
+    
     std::remove("benchmark_results.csv");
 
     std::vector<size_t>sequential_scales={1000,5000,10000,20000};

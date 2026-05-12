@@ -43,3 +43,7 @@ void HistoryManager::clear_redo(){
         redo_stack.pop();
     }
 }
+
+void HistoryManager::push_undo(const EditOperation&op){
+    undo_stack.push(op);
+}

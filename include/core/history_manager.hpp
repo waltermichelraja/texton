@@ -8,6 +8,7 @@ private:
     std::stack<EditOperation>redo_stack;
 
 public:
+    void push_undo(const EditOperation&op);
     void record(const EditOperation&op);
     bool can_undo()const;
     bool can_redo()const;
