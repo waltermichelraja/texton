@@ -22,3 +22,12 @@ add_executable(validation
     src/core/history_manager.cpp
 )
 target_include_directories(validation PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+add_executable(undo_redo_validation
+    tests/undo_redo_validation.cpp
+    src/buffer/gap_buffer.cpp
+    src/buffer/piece_table.cpp
+    src/buffer/rope.cpp
+    src/core/history_manager.cpp
+)
+target_include_directories(undo_redo_validation PRIVATE ${CMAKE_SOURCE_DIR}/include)
