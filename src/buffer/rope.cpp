@@ -188,3 +188,16 @@ void Rope::redo(){
     suppress_history=false;
     history.push_undo(op);
 }
+
+size_t count_nodes(const std::shared_ptr<RopeNode>&node){
+    if(!node){return 0;}
+    return 1+count_nodes(node->left)+count_nodes(node->right);
+}
+
+size_t Rope::memory_usage()const{
+    return count_nodes(root)*sizeof(RopeNode);
+}
+
+size_t Rope::fragment_count()const{
+    return count_nodes(root);
+}

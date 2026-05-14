@@ -161,3 +161,11 @@ void PieceTable::redo(){
     suppress_history=false;
     history.push_undo(op);
 }
+
+size_t PieceTable::memory_usage()const{
+    return original_buffer.capacity()+add_buffer.capacity()+(pieces.capacity()*sizeof(Piece));
+}
+
+size_t PieceTable::fragment_count()const{
+    return pieces.size();
+}

@@ -38,4 +38,6 @@ public:
     void redo()override;
     std::string substr(size_t pos,size_t len)const override;
     size_t size()const override;
+    size_t memory_usage()const override;
+    size_t fragment_count()const override;
 };

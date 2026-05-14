@@ -113,3 +113,11 @@ void GapBuffer::redo(){
     suppress_history=false;
     history.push_undo(op);
 }
+
+size_t GapBuffer::memory_usage()const{
+    return buffer.capacity()*sizeof(char);
+}
+
+size_t GapBuffer::fragment_count()const{
+    return 1;
+}
