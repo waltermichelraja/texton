@@ -8,24 +8,6 @@
 #include "buffer/rope.hpp"
 
 int main(){
-    Rope rope;
-    rope.insert(0,"abc");
-    rope.insert(3,"def");
-    rope.insert(6,"ghi");
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.undo();
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.undo();
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.redo();
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.erase(1,1);
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-    rope.undo();
-    std::cout<<rope.substr(0,rope.size())<<std::endl;
-
-    return 0;
-    
     std::remove("benchmark_results.csv");
 
     std::vector<size_t>sequential_scales={1000,5000,10000,20000};

@@ -4,17 +4,17 @@
 #include <fstream>
 #include <iostream>
 
-void BenchmarkRunner::write_csv(const std::string&structure,const std::string&workload,size_t operations,long long time){
+void BenchmarkRunner::write_csv(const std::string&structure,const std::string&workload,size_t operations,long long time,size_t memory,size_t fragments){
     static bool header_written=false;
     std::ofstream file;
     if(!header_written){
         file.open("benchmark_results.csv");
-        file<<"structure,workload,operations,time_microseconds\n";
+        file<<"structure,workload,operations,time_microseconds,memory_usage,fragment_count\n";
         header_written=true;
     }else{
         file.open("benchmark_results.csv",std::ios::app);
     }
-    file<<structure<<","<<workload<<","<<operations<<","<<time<<"\n";
+    file<<structure<<","<<workload<<","<<operations<<","<<time<<","<<memory<<","<<fragments<<"\n";
     file.close();
 }
 
@@ -22,6 +22,8 @@ void BenchmarkRunner::run_insert_test(const std::string&name,std::function<std::
     using namespace std::chrono;
     const int runs=5;
     long long total_time=0;
+    size_t memory=0;
+    size_t fragments=0;
 
     for(int r=0;r<runs;r++){
         auto buffer=factory();
@@ -31,17 +33,23 @@ void BenchmarkRunner::run_insert_test(const std::string&name,std::function<std::
         }
         auto end=high_resolution_clock::now();
         total_time+=duration_cast<microseconds>(end-start).count();
+        memory=buffer->memory_usage();
+        fragments=buffer->fragment_count();
     }
     std::cout<<"--- "<<name<<" ---"<<std::endl;
     std::cout<<"operations: "<<operations<<std::endl;
     std::cout<<"average time [microseconds]: "<<(total_time/runs)<<std::endl;
-    write_csv(name,"sequential_insert",operations,total_time/runs);
+    std::cout<<"memory usage: "<<memory<<std::endl;
+    std::cout<<"fragment count: "<<fragments<<std::endl;
+    write_csv(name,"sequential_insert",operations,total_time/runs,memory,fragments);
 }
 
 void BenchmarkRunner::run_random_insert_test(const std::string&name,std::function<std::unique_ptr<TextBuffer>()>factory,size_t operations){
     using namespace std::chrono;
     const int runs=5;
     long long total_time=0;
+    size_t memory=0;
+    size_t fragments=0;
 
     std::mt19937 rng(42);
     for(int r=0;r<runs;r++){
@@ -53,18 +61,23 @@ void BenchmarkRunner::run_random_insert_test(const std::string&name,std::functio
         }
         auto end=high_resolution_clock::now();
         total_time+=duration_cast<microseconds>(end-start).count();
+        memory=buffer->memory_usage();
+        fragments=buffer->fragment_count();
     }
-
     std::cout<<"--- "<<name<<" [random insert] ---"<<std::endl;
     std::cout<<"operations: "<<operations<<std::endl;
     std::cout<<"average time [microseconds]: "<<(total_time/runs)<<std::endl;
-    write_csv(name,"random_insert",operations,total_time/runs);
+    std::cout<<"memory usage: "<<memory<<std::endl;
+    std::cout<<"fragment count: "<<fragments<<std::endl;
+    write_csv(name,"random_insert",operations,total_time/runs,memory,fragments);
 }
 
 void BenchmarkRunner::run_mixed_workload(const std::string&name,std::function<std::unique_ptr<TextBuffer>()>factory,size_t operations){
     using namespace std::chrono;
     const int runs=5;
     long long total_time=0;
+    size_t memory=0;
+    size_t fragments=0;
 
     std::mt19937 rng(42);
     for(int r=0;r<runs;r++){
@@ -82,9 +95,13 @@ void BenchmarkRunner::run_mixed_workload(const std::string&name,std::function<st
         }
         auto end=high_resolution_clock::now();
         total_time+=duration_cast<microseconds>(end-start).count();
+        memory=buffer->memory_usage();
+        fragments=buffer->fragment_count();
     }
     std::cout<<"--- "<<name<<" [mixed workload] ---"<<std::endl;
     std::cout<<"operations: "<<operations<<std::endl;
     std::cout<<"average time [microseconds]: "<<(total_time/runs)<<std::endl;
-    write_csv(name,"mixed_workload",operations,total_time/runs);
+    std::cout<<"memory usage: "<<memory<<std::endl;
+    std::cout<<"fragment count: "<<fragments<<std::endl;
+    write_csv(name,"mixed_workload",operations,total_time/runs,memory,fragments);
 }
